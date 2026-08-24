@@ -6,14 +6,14 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   return (
@@ -28,16 +28,12 @@ export default function LoginPage() {
           const result = loginSchema.safeParse({ email, password });
 
           if (!result.success) {
-            const fieldErrors: Record<string, string> = {};
-            for (const issue of result.error.issues) {
-              fieldErrors[issue.path[0] as string] = issue.message;
-            }
-            setErrors(fieldErrors);
+            setError(result.error.issues[0].message);
             setSuccess(false);
             return;
           }
 
-          setErrors({});
+          setError("");
           setSuccess(true);
         }}
       >
@@ -49,7 +45,6 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {errors.email && <p>{errors.email}</p>}
         </div>
 
         <div>
@@ -60,8 +55,9 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {errors.password && <p>{errors.password}</p>}
         </div>
+
+        {error && <p>{error}</p>}
 
         <button type="submit">Login</button>
       </form>

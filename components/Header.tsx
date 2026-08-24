@@ -1,13 +1,8 @@
-type HeaderProps = {
-  title: string;
-  subtitle: string;
-};
-
-export default function Header({ title, subtitle }: HeaderProps) {
+export default function Header(props: { title: string; subtitle: string }) {
   return (
-    <header>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-    </header>
+    <>
+      <h1>{props.title}</h1>
+      <p>{props.subtitle}</p>
+    </>
   );
 }

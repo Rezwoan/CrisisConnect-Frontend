@@ -5,24 +5,19 @@ import { z } from "zod";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const registerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+});
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   return (
@@ -42,16 +37,18 @@ export default function RegisterPage() {
           });
 
           if (!result.success) {
-            const fieldErrors: Record<string, string> = {};
-            for (const issue of result.error.issues) {
-              fieldErrors[issue.path[0] as string] = issue.message;
-            }
-            setErrors(fieldErrors);
+            setError(result.error.issues[0].message);
             setSuccess(false);
             return;
           }
 
-          setErrors({});
+          if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setSuccess(false);
+            return;
+          }
+
+          setError("");
           setSuccess(true);
         }}
       >
@@ -63,7 +60,6 @@ export default function RegisterPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          {errors.name && <p>{errors.name}</p>}
         </div>
 
         <div>
@@ -74,7 +70,6 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {errors.email && <p>{errors.email}</p>}
         </div>
 
         <div>
@@ -85,7 +80,6 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {errors.password && <p>{errors.password}</p>}
         </div>
 
         <div>
@@ -96,8 +90,9 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
         </div>
+
+        {error && <p>{error}</p>}
 
         <button type="submit">Register</button>
       </form>
