@@ -25,36 +25,36 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const result = registerSchema.safeParse({
-      name,
-      email,
-      password,
-      confirmPassword,
-    });
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as string] = issue.message;
-      }
-      setErrors(fieldErrors);
-      setSuccess(false);
-      return;
-    }
-
-    setErrors({});
-    setSuccess(true);
-  };
-
   return (
     <>
       <Header title="Register" subtitle="Create a new account" />
       <Navigation />
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          const result = registerSchema.safeParse({
+            name,
+            email,
+            password,
+            confirmPassword,
+          });
+
+          if (!result.success) {
+            const fieldErrors: Record<string, string> = {};
+            for (const issue of result.error.issues) {
+              fieldErrors[issue.path[0] as string] = issue.message;
+            }
+            setErrors(fieldErrors);
+            setSuccess(false);
+            return;
+          }
+
+          setErrors({});
+          setSuccess(true);
+        }}
+      >
         <div>
           <label htmlFor="name">Name</label>
           <input
