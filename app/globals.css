@@ -18,3 +18,7 @@
 		--foreground: #ededed;
 	}
 }
+
+input {
+	border: 1px solid;
+}
