@@ -18,15 +18,13 @@ const ngos = [
   },
 ];
 
-export default async function NgoDetails({
-  params,
-}: PageProps<"/ngo/[id]">) {
+export default async function NgoDetails({params}: PageProps<"/ngo/[id]">) {
   const { id } = await params;
   const ngo = ngos.find((n) => n.id === id);
 
   return (
     <>
-      <Header title="NGO" subtitle={`Details for NGO ${id}`} />
+      <Header title="NGO" />
       <Navigation />
 
       {ngo ? (

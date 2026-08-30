@@ -22,7 +22,7 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Header title="Register" subtitle="Create a new account" />
+      <Header title="Register" />
       <Navigation />
 
       <form

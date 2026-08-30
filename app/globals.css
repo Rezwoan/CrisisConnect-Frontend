@@ -19,6 +19,32 @@
 	}
 }
 
+body {
+	padding: 1rem;
+}
+
+h1 {
+	margin-bottom: 1rem;
+}
+
+p {
+	margin: 0.75rem 0;
+}
+
+a {
+	margin-right: 1rem;
+}
+
+label {
+	display: block;
+	margin-bottom: 0.25rem;
+}
+
 input {
 	border: 1px solid;
+	margin-bottom: 0.75rem;
+}
+
+button {
+	margin-top: 0.5rem;
 }

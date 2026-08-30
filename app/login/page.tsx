@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <Header title="Login" subtitle="Login to your account" />
+      <Header title="Login" />
       <Navigation />
 
       <form
