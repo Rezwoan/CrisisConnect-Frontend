@@ -43,3 +43,9 @@ next-env.d.ts
 # auto-generated agent instruction files
 AGENTS.md
 CLAUDE.md
+
+# local working notes for Claude-assisted sessions — not team docs
+memory.md
+CODINGSTYLE.md
+CONSTRAINTS.md
+KNOWLEDGEBASE.md

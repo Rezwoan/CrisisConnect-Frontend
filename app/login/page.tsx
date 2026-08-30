@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
+import axios from "axios";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
@@ -11,10 +13,10 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   return (
     <>
@@ -22,19 +24,27 @@ export default function LoginPage() {
       <Navigation />
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
 
           const result = loginSchema.safeParse({ email, password });
 
           if (!result.success) {
             setError(result.error.issues[0].message);
-            setSuccess(false);
             return;
           }
 
-          setError("");
-          setSuccess(true);
+          try {
+            await axios.post(
+              process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/login",
+              { email, password },
+            );
+            setError("");
+            router.push("/dashboard");
+          } catch (err: any) {
+            const message = err.response?.data?.message;
+            setError(Array.isArray(message) ? message[0] : message || "Login failed");
+          }
         }}
       >
         <div>
@@ -61,8 +71,6 @@ export default function LoginPage() {
 
         <button type="submit">Login</button>
       </form>
-
-      {success && <p>Login successful!</p>}
     </>
   );
 }

@@ -1,24 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
+import axios from "axios";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
 const registerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  orgName: z.string().min(1, "Organization name is required"),
+  regNumber: z.string().min(1, "Registration number is required"),
+  phone: z.string().length(11, "Phone number must be 11 digits"),
+  city: z.string().min(1, "City is required"),
   email: z.email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(1, "Please confirm your password"),
 });
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
+  const router = useRouter();
+  const [orgName, setOrgName] = useState("");
+  const [regNumber, setRegNumber] = useState("");
+  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   return (
     <>
@@ -26,11 +34,14 @@ export default function RegisterPage() {
       <Navigation />
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
 
           const result = registerSchema.safeParse({
-            name,
+            orgName,
+            regNumber,
+            phone,
+            city,
             email,
             password,
             confirmPassword,
@@ -38,27 +49,64 @@ export default function RegisterPage() {
 
           if (!result.success) {
             setError(result.error.issues[0].message);
-            setSuccess(false);
             return;
           }
 
           if (password !== confirmPassword) {
             setError("Passwords do not match");
-            setSuccess(false);
             return;
           }
 
-          setError("");
-          setSuccess(true);
+          try {
+            await axios.post(
+              process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/signup",
+              { orgName, regNumber, phone, city, email, password },
+            );
+            setError("");
+            router.push("/login");
+          } catch (err: any) {
+            const message = err.response?.data?.message;
+            setError(Array.isArray(message) ? message[0] : message || "Registration failed");
+          }
         }}
       >
         <div>
-          <label htmlFor="name">Name</label>
+          <label htmlFor="orgName">Organization Name</label>
           <input
             type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            id="orgName"
+            value={orgName}
+            onChange={(e) => setOrgName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="regNumber">Registration Number</label>
+          <input
+            type="text"
+            id="regNumber"
+            value={regNumber}
+            onChange={(e) => setRegNumber(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="phone">Phone</label>
+          <input
+            type="text"
+            id="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="city">City</label>
+          <input
+            type="text"
+            id="city"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
           />
         </div>
 
@@ -96,8 +144,6 @@ export default function RegisterPage() {
 
         <button type="submit">Register</button>
       </form>
-
-      {success && <p>Registration successful!</p>}
     </>
   );
 }
