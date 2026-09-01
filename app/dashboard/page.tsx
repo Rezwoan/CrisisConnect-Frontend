@@ -1,12 +1,21 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
 export default function DashboardPage() {
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    setEmail(localStorage.getItem("email") || "");
+  }, []);
+
   return (
     <>
       <Header title="Dashboard" />
       <Navigation />
-      <p>Welcome to your NGO dashboard.</p>
+      <p>Welcome to your NGO dashboard, {email}.</p>
     </>
   );
 }

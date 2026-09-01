@@ -39,11 +39,16 @@ export default function LoginPage() {
               process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/login",
               { email, password },
             );
+            localStorage.setItem("email", email);
             setError("");
             router.push("/dashboard");
           } catch (err: any) {
-            const message = err.response?.data?.message;
-            setError(Array.isArray(message) ? message[0] : message || "Login failed");
+            if (err.response && err.response.data && err.response.data.message) {
+              const message = err.response.data.message;
+              setError(Array.isArray(message) ? message[0] : message);
+            } else {
+              setError("Login failed");
+            }
           }
         }}
       >

@@ -65,8 +65,12 @@ export default function RegisterPage() {
             setError("");
             router.push("/login");
           } catch (err: any) {
-            const message = err.response?.data?.message;
-            setError(Array.isArray(message) ? message[0] : message || "Registration failed");
+            if (err.response && err.response.data && err.response.data.message) {
+              const message = err.response.data.message;
+              setError(Array.isArray(message) ? message[0] : message);
+            } else {
+              setError("Registration failed");
+            }
           }
         }}
       >

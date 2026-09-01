@@ -18,7 +18,7 @@ const ngos = [
   },
 ];
 
-export default async function NgoDetails({params}: PageProps<"/ngo/[id]">) {
+export default async function NgoDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ngo = ngos.find((n) => n.id === id);
 
