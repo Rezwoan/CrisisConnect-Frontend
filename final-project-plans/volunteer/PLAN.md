@@ -2,28 +2,25 @@
 
 Your backend (`src/volunteer/` in `CrisisConnect-Backend`) is already fully
 built: signup, login (with OTP), profile, skills, browsing calls, applying,
-assignments, work logs. You do not have to build any new backend routes to
-hit the numbers below — only two small edits, both optional but
-recommended.
+assignments, work logs. Keep OTP exactly as it is — the faculty wants the
+unified login flow to end in an OTP step for every role.
 
-## Recommended backend edit 1 — drop OTP (optional, ~10 min)
+Auth pages for this role work like every other role — see the root
+`README.md` in this folder for the full shared-flow explanation. In short,
+`app/login` and `app/register` (already built, shared) collect
+email+password / pick a role and hand off to your folder. What you still
+need to build (placeholders already exist at these paths):
 
-Same situation as Admin: `POST /volunteer/login` only emails a code today;
-you need `POST /volunteer/verify-login-otp` afterward to get a token, and
-signup needs `POST /volunteer/verify-otp` before the account works at all.
-None of the final-project rubric items ask for this. In
-`src/volunteer/volunteer.service.ts`:
+- `app/volunteer/register/page.tsx` — the real signup form (fields below),
+  posting to `POST /volunteer/signup`. On success, store the email and send
+  the user to an OTP-entry page that posts to `POST /volunteer/verify-otp`,
+  then on to `/login`.
+- `app/volunteer/login/page.tsx` — continues after the shared `/login` page
+  already checked the password: read `email` back out of `localStorage`,
+  show a code field, `POST /volunteer/verify-login-otp`, store the returned
+  `accessToken`, go to `/dashboard`.
 
-- `signup()`: save the user as already verified, skip sending the signup
-  OTP, return a plain success message.
-- `login()`: after the password + `isVerified` checks pass, sign and return
-  the JWT directly instead of emailing a login code.
-
-If you'd rather leave OTP in: everything below still works, you just add two
-more pages and two more Axios calls (`verify-otp`, `verify-login-otp`) on
-top of the count in the table below.
-
-## Required backend edit 2 — unguard one browse route
+## Required backend edit — unguard one browse route
 
 `GET /volunteer/calls` is behind `@UseGuards(JwtAuthGuard)` in
 `src/volunteer/volunteer.controller.ts`. Remove the guard from that one
@@ -36,8 +33,9 @@ a volunteer. Leave every other route (`application`, `assignment`,
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
 | `/` | SSR | first 3 open calls | `GET /volunteer/calls` |
-| `/register` | CSR | — | `POST /volunteer/signup` |
-| `/login` | CSR | — | `POST /volunteer/login` |
+| `/volunteer/register` | CSR | — | `POST /volunteer/signup` |
+| `/volunteer/verify-signup` | CSR | — | `POST /volunteer/verify-otp` |
+| `/volunteer/login` | CSR | — (shared `/login` already did email+password) | `POST /volunteer/verify-login-otp` |
 | `/dashboard` | CSR | your volunteer profile | `GET /volunteer/profile` |
 | `/calls` | SSR | all open calls (folder-based route) | `GET /volunteer/calls` |
 | `/calls/loading.tsx` | — | loading UI while the fetch runs | — |
@@ -48,8 +46,10 @@ a volunteer. Leave every other route (`application`, `assignment`,
 | `/profile/edit` | CSR | edit form + availability toggle | `PUT /volunteer/profile`, `PATCH /volunteer/profile/availability` |
 | `/assignments` | CSR | your approved assignments (read-only) | `GET /volunteer/assignment` |
 
-That's 12 Axios call sites (3 SSR, 9 CSR) — exactly at the minimum with both
-counts covered.
+That's 14 Axios call sites (3 SSR, 11 CSR) — past the 12 minimum with both
+counts covered. The shared `/login` page's own two calls (`GET /auth/role`,
+`POST /volunteer/login`) are extra on top of this since they're common
+code, not volunteer-specific.
 
 ## Signup form fields
 

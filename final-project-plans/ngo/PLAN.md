@@ -1,8 +1,14 @@
 # NGO — Final Project Plan
 
-Your backend (`src/ngo/` in `CrisisConnect-Backend`) is already fully built
-and OTP-free: signup and login both work in one step, exactly like this plan
-assumes. You do not need to touch the auth logic at all.
+Your backend (`src/ngo/` in `CrisisConnect-Backend`) is already fully built,
+OTP included: `signup → verify-otp` and `login → verify-login-otp`. You do
+not need to touch the auth logic at all.
+
+Auth pages are already built for this role as part of the shared flow
+(`app/login`, `app/register` are the shared entry points; `app/ngo/register`,
+`app/ngo/verify-signup`, `app/ngo/login` are this role's continuation
+pages) — see the root `README.md` in this folder for how the pieces fit
+together. Nothing else in this plan changes because of that.
 
 ## The one backend change you need
 
@@ -19,8 +25,9 @@ why).
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
 | `/` | SSR | first 3 active crises | `GET /ngo/crisis` |
-| `/register` | CSR | — | `POST /ngo/signup` |
-| `/login` | CSR | — | `POST /ngo/login` |
+| `/ngo/register` | CSR | — | `POST /ngo/signup` |
+| `/ngo/verify-signup` | CSR | — | `POST /ngo/verify-otp` |
+| `/ngo/login` | CSR | — (shared `/login` already did email+password) | `POST /ngo/verify-login-otp` |
 | `/dashboard` | CSR | your org profile | `GET /ngo/profile` |
 | `/crises` | SSR | all crises (folder-based route) | `GET /ngo/crisis` |
 | `/crises/loading.tsx` | — | Next.js loading UI while the above fetch runs | — |
@@ -31,16 +38,19 @@ why).
 | `/calls` | CSR | your volunteer calls, a create form, a close button | `GET /ngo/volunteer-call`, `POST /ngo/volunteer-call`, `PATCH /ngo/volunteer-call/:id/status` |
 | `/donation-calls` | CSR | your donation calls + create form | `GET /ngo/donation-call`, `POST /ngo/donation-call` |
 
-That's 14 Axios call sites (3 SSR — home teaser, crisis list, crisis detail
-— and 11 CSR), well past the 12 minimum with both counts covered.
+That's 15 Axios call sites (3 SSR — home teaser, crisis list, crisis detail
+— and 12 CSR), well past the 12 minimum with both counts covered. The
+shared `/login` page's own two calls (`GET /auth/role`, `POST /ngo/login`)
+are extra on top of this table since they're common code, not NGO-specific.
 
 ## Auth + validation
 
-Already built for `/login` and `/register` — Zod for form validation,
-`localStorage.setItem("token", ...)` and `localStorage.setItem("orgName",
-...)` on successful login, read back with `useEffect` on `/dashboard`. Every
-guarded call from a Client Component sends `Authorization: Bearer <token>`
-read from `localStorage`.
+Already built — Zod for form validation, one `error` string per form,
+`localStorage.setItem("email", ...)` on both the shared login and NGO's own
+register/verify steps, `localStorage.setItem("token", ...)` once
+`/ngo/login` finishes at `/ngo/login` (the OTP step), read back with
+`useEffect` on `/dashboard`. Every guarded call from a Client Component
+sends `Authorization: Bearer <token>` read from `localStorage`.
 
 ## Required components (no styling opinions here — just what has to exist)
 

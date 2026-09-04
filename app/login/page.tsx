@@ -35,13 +35,20 @@ export default function LoginPage() {
           }
 
           try {
+            const roleResponse = await axios.get(
+              process.env.NEXT_PUBLIC_API_ENDPOINT + "/auth/role",
+              { params: { email } },
+            );
+            const role = roleResponse.data.role.toLowerCase();
+
             await axios.post(
-              process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/login",
+              process.env.NEXT_PUBLIC_API_ENDPOINT + "/" + role + "/login",
               { email, password },
             );
+
             localStorage.setItem("email", email);
             setError("");
-            router.push("/dashboard");
+            router.push("/" + role + "/login");
           } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
               const message = err.response.data.message;

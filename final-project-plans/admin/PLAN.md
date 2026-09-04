@@ -2,32 +2,37 @@
 
 Your backend (`src/admin/` in `CrisisConnect-Backend`) is already fully
 built: signup, login (with OTP), profile, crisis CRUD, and announcements.
-You do not have to build any new backend routes to hit the numbers below —
-only two small edits, both optional but recommended.
+Keep OTP exactly as it is — the faculty wants the unified login flow to end
+in an OTP step for every role, so there's nothing to remove here.
 
-## Recommended backend edit 1 — drop OTP (optional, ~10 min)
+Auth pages for this role work like every other role — see the root
+`README.md` in this folder for the full shared-flow explanation. In short:
+`app/login` and `app/register` (already built, shared) collect
+email+password / pick a role and hand off to your folder. What you still
+need to build:
 
-Right now `POST /admin/login` only emails a code and returns
-`{ message: "OTP sent..." }`; you need a second call to
-`POST /admin/verify-login-otp` to actually get a token, and signup needs
-`POST /admin/verify-otp` before the account can log in at all. None of the
-final-project rubric items ask for this, and it means building two more
-screens (enter-signup-code, enter-login-code) for no extra marks. NGO's
-backend already had this removed — same idea here:
+- `app/admin/register/page.tsx` — currently a placeholder. **This is not a
+  public signup form** — `POST /admin/signup` is guarded now
+  (`@UseGuards(AdminGuard)` was added to it, see below), so this page is
+  really "create another admin," reachable only once you're logged in as an
+  admin. It's not linked from the shared `/register` role picker on
+  purpose. The very first admin account has to be seeded directly in the
+  database (one `INSERT` into `user` + `admin`, bcrypt hash included) since
+  there's no admin yet to create one through the API.
+- `app/admin/verify-signup/page.tsx` — after creating an admin, `POST
+  /admin/verify-otp` with the code emailed to the new admin.
+- `app/admin/login/page.tsx` — currently a placeholder. Continues after the
+  shared `/login` page already checked the password: read `email` back out
+  of `localStorage`, show a code field, `POST /admin/verify-login-otp`,
+  store the returned `accessToken`, go to `/dashboard`.
 
-- In `signup()` (`src/admin/admin.service.ts`): save the user with
-  `isVerified: true` instead of `false`, skip sending the signup OTP, and
-  return a plain success message. Delete/ignore `verify-otp` and
-  `resend-otp` afterward.
-- In `login()`: skip the `isVerified` check's OTP branch — after the
-  password check passes, sign and return the JWT directly:
-  `return { accessToken: await this.jwtService.signAsync({ userId: user.id, role: user.role }) }`.
-  Delete/ignore `verify-login-otp`.
+## Required backend edit 1 — guard signup, admin-only
 
-If you'd rather leave OTP in: everything below still works, you just add
-two more pages (`/verify-signup`, `/verify-login`) and two more Axios calls
-(`POST /admin/verify-otp`, `POST /admin/verify-login-otp`) on top of the
-count in the table below.
+Already done in `src/admin/admin.controller.ts`: `POST /admin/signup` now
+has `@UseGuards(AdminGuard)` on it, matching "admin cannot be registered
+directly, only another admin can create one." Nothing left to do here
+unless you want to change how `req.user` gets passed through to
+`adminService.signup`.
 
 ## Required backend edit 2 — unguard one browse route
 
@@ -43,8 +48,9 @@ Leave every other route (`POST/PUT/PATCH/DELETE crisis`, `announcement`,
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
 | `/` | SSR | first 3 crises | `GET /admin/crisis` |
-| `/register` | CSR | — | `POST /admin/signup` |
-| `/login` | CSR | — | `POST /admin/login` |
+| `/admin/register` | CSR | — (only reachable once logged in as an admin) | `POST /admin/signup` |
+| `/admin/verify-signup` | CSR | — | `POST /admin/verify-otp` |
+| `/admin/login` | CSR | — (shared `/login` already did email+password) | `POST /admin/verify-login-otp` |
 | `/dashboard` | CSR | your admin profile | `GET /admin/profile` |
 | `/crises` | SSR | all crises (folder-based route) | `GET /admin/crisis` |
 | `/crises/loading.tsx` | — | loading UI while the fetch runs | — |
@@ -54,8 +60,10 @@ Leave every other route (`POST/PUT/PATCH/DELETE crisis`, `announcement`,
 | `/crises/[id]/edit` (or a manage table on `/crises`) | CSR | edit + close buttons | `PUT /admin/crisis/:id`, `PATCH /admin/crisis/:id/status` |
 | `/announcements/new` | CSR | create-announcement form | `POST /admin/announcement` |
 
-That's 11 Axios call sites (3 SSR, 8 CSR) — one short of 12. Two easy ways
-to close the gap, pick either:
+That's 13 Axios call sites (3 SSR, 10 CSR) — past the 12 minimum with both
+counts covered. The shared `/login` page's own two calls (`GET /auth/role`,
+`POST /admin/login`) are extra on top of this since they're common code,
+not admin-specific. A couple of easy additions if you want more margin:
 
 - Add `/users` — read-only list, `GET /admin/users` (CSR). Realistic for an
   admin dashboard anyway.

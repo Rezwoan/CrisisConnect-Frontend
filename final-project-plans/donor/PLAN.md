@@ -3,19 +3,23 @@
 Unlike the other three roles, `src/donor/` in `CrisisConnect-Backend` is
 still just the starter stub (`GET /donor` health check only) — the entities
 (`Donor`, `Donation`, `Payment`, `Receipt`) exist, but no real routes yet.
-Start straight from the simple pattern below — there's no OTP-based version
-to remove here, so nothing to undo later.
+Build it with OTP included from the start — the faculty wants the unified
+login flow to end in an OTP step for every role, and NGO's `src/ngo/`
+already shows exactly how to wire that up (shared `Otp` entity,
+`OtpPurpose` enum, `MailerService`).
 
 ## Backend routes to build (minimum)
 
-Copy the shape of `src/ngo/ngo.service.ts` and `src/ngo/ngo.guard.ts` — same
-project, already working, already OTP-free. `DonorGuard` should be an exact
-copy of `NgoGuard` with `UserRole.NGO` swapped for `UserRole.DONOR`.
+Copy the shape of `src/ngo/ngo.service.ts` and `src/ngo/ngo.guard.ts` —
+same project, already working, OTP included. `DonorGuard` should be an
+exact copy of `NgoGuard` with `UserRole.NGO` swapped for `UserRole.DONOR`.
 
 | Verb | Route | Guarded? | Body / notes |
 |---|---|---|---|
-| POST | `/donor/signup` | no | `{ email, password, fullName, city, country?, uniqueId }` — see below |
-| POST | `/donor/login` | no | `{ email, password }` → `{ accessToken }` directly, no OTP |
+| POST | `/donor/signup` | no | `{ email, password, fullName, city, country?, uniqueId }` — see below. Creates the account unverified and emails a signup code, exactly like `NgoService.signup()`. |
+| POST | `/donor/verify-otp` | no | `{ email, code }` — marks the account verified, same as `NgoService.verifyOtp()`. |
+| POST | `/donor/login` | no | `{ email, password }` — checks password + `isVerified`, then emails a login code (no token yet), same as `NgoService.login()`. |
+| POST | `/donor/verify-login-otp` | no | `{ email, code }` → `{ accessToken }`, same as `NgoService.verifyLoginOtp()`. |
 | GET | `/donor/profile` | yes | identity from the token, like NGO's `/ngo/profile` |
 | PUT | `/donor/profile` | yes | `{ fullName, city, country }` |
 | PATCH | `/donor/profile/country` | yes | `{ country }` |
@@ -37,13 +41,29 @@ Skip entirely for now (see Optional below): `Payment`, `Receipt`, and the
 `crisis_follow` M:N (follow/unfollow a crisis). None of them are needed to
 hit the numbers below.
 
+Auth pages for this role work like every other role — see the root
+`README.md` in this folder for the full shared-flow explanation. In short,
+`app/login` and `app/register` (already built, shared) collect
+email+password / pick a role and hand off to your folder. What you still
+need to build (placeholders already exist at these paths):
+
+- `app/donor/register/page.tsx` — the real signup form (fields below),
+  posting to `POST /donor/signup`. On success, store the email and send the
+  user to an OTP-entry page that posts to `POST /donor/verify-otp`, then on
+  to `/login`.
+- `app/donor/login/page.tsx` — continues after the shared `/login` page
+  already checked the password: read `email` back out of `localStorage`,
+  show a code field, `POST /donor/verify-login-otp`, store the returned
+  `accessToken`, go to `/dashboard`.
+
 ## Pages to build
 
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
 | `/` | SSR | first 3 open campaigns | `GET /donor/donation-call` |
-| `/register` | CSR | — | `POST /donor/signup` |
-| `/login` | CSR | — | `POST /donor/login` |
+| `/donor/register` | CSR | — | `POST /donor/signup` |
+| `/donor/verify-signup` | CSR | — | `POST /donor/verify-otp` |
+| `/donor/login` | CSR | — (shared `/login` already did email+password) | `POST /donor/verify-login-otp` |
 | `/dashboard` | CSR | your donor profile | `GET /donor/profile` |
 | `/campaigns` | SSR | all open campaigns (folder-based route) | `GET /donor/donation-call` |
 | `/campaigns/loading.tsx` | — | loading UI while the fetch runs | — |
@@ -54,8 +74,10 @@ hit the numbers below.
 | `/profile/edit` | CSR | edit form + country field | `PUT /donor/profile`, `PATCH /donor/profile/country` |
 | `/donors` | SSR | public donor list | `GET /donor` |
 
-That's 12 Axios call sites (4 SSR — home teaser, campaign list, campaign
-detail, donor list — and 8 CSR).
+That's 14 Axios call sites (4 SSR — home teaser, campaign list, campaign
+detail, donor list — and 10 CSR). The shared `/login` page's own two calls
+(`GET /auth/role`, `POST /donor/login`) are extra on top of this since
+they're common code, not donor-specific.
 
 ## Auth + validation
 

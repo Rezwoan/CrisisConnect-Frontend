@@ -44,14 +44,49 @@ login, with the JWT read out of `localStorage` and sent as `Authorization:
 Bearer <token>` on that one Axios call. This is exactly the pattern already
 working end-to-end in the NGO frontend (this repo's `ngo` branch).
 
-## Why sign in has no OTP step here
+## Unified login/registration + OTP
 
-The signup/login screens in these plans go straight from "submit the form"
-to "logged in" — no emailed 6-digit code. Two backends (Admin, Volunteer)
-still have the OTP step built in from an earlier phase; NGO's has already
-had it removed. None of the four grading rubrics above ask for OTP or email
-verification, so it's pure extra screens and extra explaining for no marks.
-Each plan says exactly what to change on the backend if you want to drop it
-(10 minutes), and exactly what to keep if you'd rather leave your backend
-as-is and just add the two extra "enter code" screens instead. Either way
-works — that's your call to make on your own backend branch.
+The faculty asked for one shared login and one shared registration entry
+point across all four roles, and for OTP to stay in on every role (not
+removed). That's now built on `main` of this frontend repo:
+
+- **`app/login/page.tsx`** (shared, already built) — a single email +
+  password form for everyone. On submit it calls `GET /auth/role?email=...`
+  on the backend (a new small shared endpoint that looks the email up in
+  the `user` table and returns its `role`), then posts `{ email, password }`
+  straight to that role's own `POST /<role>/login`. On success it stores
+  `email` in `localStorage` and redirects to `/<role>/login` — your role's
+  own folder — to finish the OTP step.
+- **`app/register/page.tsx`** (shared, already built) — no form, just three
+  links: NGO, Volunteer, Donor. Admin is deliberately not offered here —
+  admins are created by an existing admin, not self-registered. Each link
+  goes straight to `/<role>/register`.
+
+**What you build in your own role folder**, using OTP exactly the way your
+backend already does it (Admin and Volunteer already have this; NGO's is
+restored; Donor needs to add it when building the backend from scratch —
+see your plan):
+
+- `app/<role>/register/page.tsx` — the real signup form for your role's
+  fields, posting to `POST /<role>/signup`. On success, store the email and
+  send the user to an OTP-entry page for signup (`POST /<role>/verify-otp`),
+  then on to `/login`.
+- `app/<role>/login/page.tsx` — the continuation after the shared `/login`
+  page already checked the password. Read `email` back out of
+  `localStorage` (redirect to `/login` if it's missing — someone landed here
+  directly), show a code field, and post to `POST /<role>/verify-login-otp`.
+  On success store the returned `accessToken` and go to your dashboard.
+
+NGO's version of both is already built (`app/ngo/register`,
+`app/ngo/verify-signup`, `app/ngo/login`) — copy that shape for your own
+role's fields and routes. Placeholder folders already exist for
+Admin/Volunteer/Donor (`app/<role>/register`, `app/<role>/login`) so the
+routes exist; fill them in following the same pattern.
+
+## Ground rule about guarded routes still applies
+
+Everything above only covers auth. Once logged in, every other guarded
+route (profile, create, update, etc.) still needs `Authorization: Bearer
+<token>` read from `localStorage`, same as before — see the "Ground rule"
+section above for why one browse route per role needs to stay public for
+SSR to work at all.
