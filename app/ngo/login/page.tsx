@@ -39,7 +39,7 @@ export default function NgoLoginPage() {
             );
             localStorage.setItem("token", response.data.accessToken);
             setError("");
-            router.push("/dashboard");
+            router.push("/ngo/dashboard");
           } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
               const message = err.response.data.message;

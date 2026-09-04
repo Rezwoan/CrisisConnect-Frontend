@@ -51,7 +51,7 @@ export default function LoginPage() {
             if (loginResponse.data.accessToken) {
               localStorage.setItem("token", loginResponse.data.accessToken);
               localStorage.setItem("email", email);
-              router.push("/dashboard");
+              router.push("/" + role + "/dashboard");
             } else {
               localStorage.setItem("email", email);
               router.push("/" + role + "/login");

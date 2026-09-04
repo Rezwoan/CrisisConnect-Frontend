@@ -36,7 +36,7 @@ a volunteer. Leave every other route (`application`, `assignment`,
 | `/` | SSR | first 3 open calls | `GET /volunteer/calls` |
 | `/volunteer/register` | CSR | — | `POST /volunteer/signup` |
 | `/volunteer/login` | CSR | — (shared `/login` already did email+password) | whatever your backend's login still needs — e.g. `POST /volunteer/verify-login-otp` if you keep OTP |
-| `/dashboard` | CSR | your volunteer profile | `GET /volunteer/profile` |
+| `/volunteer/dashboard` | CSR | your volunteer profile | `GET /volunteer/profile` |
 | `/calls` | SSR | all open calls (folder-based route) | `GET /volunteer/calls` |
 | `/calls/loading.tsx` | — | loading UI while the fetch runs | — |
 | `/calls/[id]` | SSR | one call (dynamic route) | reuses the same `GET /volunteer/calls` list, find by id server-side |

@@ -20,6 +20,14 @@ plan. Read only your own; you don't need the others to do your part. None of
 these plans say anything about colors, spacing, or Tailwind class choices —
 that's entirely up to whoever builds the page.
 
+Same rule as the backend: build everything for your role inside
+`app/<role>/`. Don't edit files outside that folder — `app/layout.tsx`,
+`app/page.tsx`, `app/login`, `app/register`, `components/`, `globals.css` —
+unless the change is genuinely needed for every role, not just yours. The
+root of the app is deliberately kept minimal right now (it's just the
+shared login/register gateway that hands off into your folder) — a nicer
+landing page is a separate, later thing, not part of any one role's work.
+
 Backend routes referenced below live in `CrisisConnect-Backend`, on its
 `main` branch — that's the branch with everyone's actual merged backend
 work (the individually-named `admin`/`volunteer`/`donor`/`ngo`/`dev`
@@ -64,12 +72,16 @@ and it's the only cross-role piece — everything past it is your own call:
   that response looks like, not on any assumption baked into the shared
   page:
   - If it comes back with an `accessToken`, the shared page stores it and
-    goes straight to `/dashboard`. Nothing further for you to build.
+    goes straight to `/<role>/dashboard`. Nothing further for you to build.
   - If it doesn't (your backend replies some other way — an OTP message,
     for instance), the shared page stores `email` in `localStorage` and
     sends the user to `/<role>/login` — a base file already sits there in
     your folder, empty and ready, since only you know what your backend's
     login actually still needs at that point.
+
+Dashboards are per-role too — `app/<role>/dashboard/page.tsx` — not one
+shared page. NGO's is a real working example; the other three are empty
+base files.
 - **`app/register/page.tsx`** (shared) — no form, just links to
   `/<role>/register` for NGO, Volunteer, and Donor. Admin isn't linked here
   since admins aren't self-registered — that's it, no other backend change

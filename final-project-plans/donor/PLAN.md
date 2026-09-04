@@ -49,7 +49,7 @@ already, ready for whatever your signup/login screens need.
 | `/` | SSR | first 3 open campaigns | `GET /donor/donation-call` |
 | `/donor/register` | CSR | — | `POST /donor/signup` |
 | `/donor/login` | CSR | — (shared `/login` already did email+password; only used if your login doesn't return a token right away) | whatever your backend's login still needs, if anything |
-| `/dashboard` | CSR | your donor profile | `GET /donor/profile` |
+| `/donor/dashboard` | CSR | your donor profile | `GET /donor/profile` |
 | `/campaigns` | SSR | all open campaigns (folder-based route) | `GET /donor/donation-call` |
 | `/campaigns/loading.tsx` | — | loading UI while the fetch runs | — |
 | `/campaigns/[id]` | SSR | one campaign (dynamic route) | reuses the same `GET /donor/donation-call` list, find by id server-side |

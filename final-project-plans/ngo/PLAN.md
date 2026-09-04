@@ -28,7 +28,7 @@ why).
 | `/ngo/register` | CSR | — | `POST /ngo/signup` |
 | `/ngo/verify-signup` | CSR | — | `POST /ngo/verify-otp` |
 | `/ngo/login` | CSR | — (shared `/login` already did email+password) | `POST /ngo/verify-login-otp` |
-| `/dashboard` | CSR | your org profile | `GET /ngo/profile` |
+| `/ngo/dashboard` | CSR | your org profile | `GET /ngo/profile` |
 | `/crises` | SSR | all crises (folder-based route) | `GET /ngo/crisis` |
 | `/crises/loading.tsx` | — | Next.js loading UI while the above fetch runs | — |
 | `/crises/[id]` | SSR | one crisis (dynamic route) | reuses the same `GET /ngo/crisis` list, find by id server-side |
@@ -49,7 +49,7 @@ Already built — Zod for form validation, one `error` string per form,
 `localStorage.setItem("email", ...)` on both the shared login and NGO's own
 register/verify steps, `localStorage.setItem("token", ...)` once
 `/ngo/login` finishes at `/ngo/login` (the OTP step), read back with
-`useEffect` on `/dashboard`. Every guarded call from a Client Component
+`useEffect` on `/ngo/dashboard`. Every guarded call from a Client Component
 sends `Authorization: Bearer <token>` read from `localStorage`.
 
 ## Required components (no styling opinions here — just what has to exist)

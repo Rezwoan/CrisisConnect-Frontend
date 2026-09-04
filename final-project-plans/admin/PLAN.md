@@ -31,7 +31,7 @@ Leave every other route (`POST/PUT/PATCH/DELETE crisis`, `announcement`,
 | `/` | SSR | first 3 crises | `GET /admin/crisis` |
 | `/admin/register` | CSR | — | `POST /admin/signup` |
 | `/admin/login` | CSR | — (shared `/login` already did email+password) | whatever your backend's login still needs — e.g. `POST /admin/verify-login-otp` if you keep OTP |
-| `/dashboard` | CSR | your admin profile | `GET /admin/profile` |
+| `/admin/dashboard` | CSR | your admin profile | `GET /admin/profile` |
 | `/crises` | SSR | all crises (folder-based route) | `GET /admin/crisis` |
 | `/crises/loading.tsx` | — | loading UI while the fetch runs | — |
 | `/crises/[id]` | SSR | one crisis (dynamic route) | `GET /admin/crisis/:id` |
@@ -69,8 +69,8 @@ build the `/users` page above anyway, but isn't required.
 
 Zod validation on every form, one `error` string per form, `localStorage`
 for the token (and whatever identity string you want to greet with on
-`/dashboard`), `Authorization: Bearer <token>` attached on every guarded
-call.
+`/admin/dashboard`), `Authorization: Bearer <token>` attached on every
+guarded call.
 
 ## Required components (no styling opinions here — just what has to exist)
 
