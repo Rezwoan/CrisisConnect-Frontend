@@ -6,10 +6,6 @@ export default function VolunteerRegisterPage() {
     <>
       <Header title="Volunteer Registration" />
       <Navigation />
-      <p>
-        Build the volunteer signup form here — see
-        final-project-plans/volunteer/PLAN.md.
-      </p>
     </>
   );
 }

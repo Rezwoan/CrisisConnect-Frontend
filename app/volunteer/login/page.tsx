@@ -1,15 +1,21 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
 export default function VolunteerLoginPage() {
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    setEmail(localStorage.getItem("email") || "");
+  }, []);
+
   return (
     <>
       <Header title="Volunteer Login" />
       <Navigation />
-      <p>
-        Continue volunteer login here (password already checked by the
-        shared /login page) — see final-project-plans/volunteer/PLAN.md.
-      </p>
+      <p>{email}</p>
     </>
   );
 }

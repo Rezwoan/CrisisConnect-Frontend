@@ -41,14 +41,21 @@ export default function LoginPage() {
             );
             const role = roleResponse.data.role.toLowerCase();
 
-            await axios.post(
+            const loginResponse = await axios.post(
               process.env.NEXT_PUBLIC_API_ENDPOINT + "/" + role + "/login",
               { email, password },
             );
 
-            localStorage.setItem("email", email);
             setError("");
-            router.push("/" + role + "/login");
+
+            if (loginResponse.data.accessToken) {
+              localStorage.setItem("token", loginResponse.data.accessToken);
+              localStorage.setItem("email", email);
+              router.push("/dashboard");
+            } else {
+              localStorage.setItem("email", email);
+              router.push("/" + role + "/login");
+            }
           } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
               const message = err.response.data.message;

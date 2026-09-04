@@ -2,39 +2,20 @@
 
 Your backend (`src/admin/` in `CrisisConnect-Backend`) is already fully
 built: signup, login (with OTP), profile, crisis CRUD, and announcements.
-Keep OTP exactly as it is — the faculty wants the unified login flow to end
-in an OTP step for every role, so there's nothing to remove here.
+Nothing here requires you to change that — whether you keep OTP or not is
+your call.
 
-Auth pages for this role work like every other role — see the root
-`README.md` in this folder for the full shared-flow explanation. In short:
-`app/login` and `app/register` (already built, shared) collect
-email+password / pick a role and hand off to your folder. What you still
-need to build:
+Auth pages work like every role — see the root `README.md` in this folder
+for the shared-flow explanation. In short: `app/login` and `app/register`
+are shared and already built. `app/register` doesn't link to admin
+registration, since admins aren't self-registered (an existing admin
+creates new ones) — how you enforce that on the backend, if at all, is up
+to you. `app/admin/register/page.tsx` and `app/admin/login/page.tsx` are
+empty base files sitting in your own folder already, ready for whatever
+your signup/login screens need — including an OTP step if you keep one,
+using your existing `verify-otp`/`verify-login-otp` routes.
 
-- `app/admin/register/page.tsx` — currently a placeholder. **This is not a
-  public signup form** — `POST /admin/signup` is guarded now
-  (`@UseGuards(AdminGuard)` was added to it, see below), so this page is
-  really "create another admin," reachable only once you're logged in as an
-  admin. It's not linked from the shared `/register` role picker on
-  purpose. The very first admin account has to be seeded directly in the
-  database (one `INSERT` into `user` + `admin`, bcrypt hash included) since
-  there's no admin yet to create one through the API.
-- `app/admin/verify-signup/page.tsx` — after creating an admin, `POST
-  /admin/verify-otp` with the code emailed to the new admin.
-- `app/admin/login/page.tsx` — currently a placeholder. Continues after the
-  shared `/login` page already checked the password: read `email` back out
-  of `localStorage`, show a code field, `POST /admin/verify-login-otp`,
-  store the returned `accessToken`, go to `/dashboard`.
-
-## Required backend edit 1 — guard signup, admin-only
-
-Already done in `src/admin/admin.controller.ts`: `POST /admin/signup` now
-has `@UseGuards(AdminGuard)` on it, matching "admin cannot be registered
-directly, only another admin can create one." Nothing left to do here
-unless you want to change how `req.user` gets passed through to
-`adminService.signup`.
-
-## Required backend edit 2 — unguard one browse route
+## Required backend edit — unguard one browse route
 
 `GET /admin/crisis` and `GET /admin/crisis/:id` are both behind
 `@UseGuards(AdminGuard)` in `src/admin/admin.controller.ts`. Remove the
@@ -48,9 +29,8 @@ Leave every other route (`POST/PUT/PATCH/DELETE crisis`, `announcement`,
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
 | `/` | SSR | first 3 crises | `GET /admin/crisis` |
-| `/admin/register` | CSR | — (only reachable once logged in as an admin) | `POST /admin/signup` |
-| `/admin/verify-signup` | CSR | — | `POST /admin/verify-otp` |
-| `/admin/login` | CSR | — (shared `/login` already did email+password) | `POST /admin/verify-login-otp` |
+| `/admin/register` | CSR | — | `POST /admin/signup` |
+| `/admin/login` | CSR | — (shared `/login` already did email+password) | whatever your backend's login still needs — e.g. `POST /admin/verify-login-otp` if you keep OTP |
 | `/dashboard` | CSR | your admin profile | `GET /admin/profile` |
 | `/crises` | SSR | all crises (folder-based route) | `GET /admin/crisis` |
 | `/crises/loading.tsx` | — | loading UI while the fetch runs | — |
@@ -60,10 +40,11 @@ Leave every other route (`POST/PUT/PATCH/DELETE crisis`, `announcement`,
 | `/crises/[id]/edit` (or a manage table on `/crises`) | CSR | edit + close buttons | `PUT /admin/crisis/:id`, `PATCH /admin/crisis/:id/status` |
 | `/announcements/new` | CSR | create-announcement form | `POST /admin/announcement` |
 
-That's 13 Axios call sites (3 SSR, 10 CSR) — past the 12 minimum with both
-counts covered. The shared `/login` page's own two calls (`GET /auth/role`,
-`POST /admin/login`) are extra on top of this since they're common code,
-not admin-specific. A couple of easy additions if you want more margin:
+That's 12 Axios call sites (3 SSR, 9 CSR) — at the minimum, plus whatever
+your `/admin/login` continuation ends up calling. The shared `/login`
+page's own two calls (`GET /auth/role`, `POST /admin/login`) are extra on
+top of this since they're common code, not admin-specific. A couple of easy
+additions if you want more margin:
 
 - Add `/users` — read-only list, `GET /admin/users` (CSR). Realistic for an
   admin dashboard anyway.
@@ -86,10 +67,10 @@ build the `/users` page above anyway, but isn't required.
 
 ## Auth + validation
 
-Same shape as NGO: Zod validation on every form, one `error` string per
-form, `localStorage` for the token (and whatever identity string you want to
-greet with on `/dashboard`), `Authorization: Bearer <token>` attached on
-every guarded call.
+Zod validation on every form, one `error` string per form, `localStorage`
+for the token (and whatever identity string you want to greet with on
+`/dashboard`), `Authorization: Bearer <token>` attached on every guarded
+call.
 
 ## Required components (no styling opinions here — just what has to exist)
 

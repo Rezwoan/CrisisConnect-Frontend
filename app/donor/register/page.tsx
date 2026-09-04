@@ -6,10 +6,6 @@ export default function DonorRegisterPage() {
     <>
       <Header title="Donor Registration" />
       <Navigation />
-      <p>
-        Build the donor signup form here — see
-        final-project-plans/donor/PLAN.md.
-      </p>
     </>
   );
 }

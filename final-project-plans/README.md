@@ -41,47 +41,37 @@ data source (home teaser, list page, and dynamic detail page all read it).
 Every other route — profile, create, update, approve, delete, anything
 personal or mutating — stays guarded and is called from the browser after
 login, with the JWT read out of `localStorage` and sent as `Authorization:
-Bearer <token>` on that one Axios call. This is exactly the pattern already
-working end-to-end in the NGO frontend (this repo's `ngo` branch).
+Bearer <token>` on that one Axios call.
 
-## Unified login/registration + OTP
+## Unified login/registration
 
 The faculty asked for one shared login and one shared registration entry
-point across all four roles, and for OTP to stay in on every role (not
-removed). That's now built on `main` of this frontend repo:
+point across all four roles. That's built on `main` of this frontend repo,
+and it's the only cross-role piece — everything past it is your own call:
 
-- **`app/login/page.tsx`** (shared, already built) — a single email +
-  password form for everyone. On submit it calls `GET /auth/role?email=...`
-  on the backend (a new small shared endpoint that looks the email up in
-  the `user` table and returns its `role`), then posts `{ email, password }`
-  straight to that role's own `POST /<role>/login`. On success it stores
-  `email` in `localStorage` and redirects to `/<role>/login` — your role's
-  own folder — to finish the OTP step.
-- **`app/register/page.tsx`** (shared, already built) — no form, just three
-  links: NGO, Volunteer, Donor. Admin is deliberately not offered here —
-  admins are created by an existing admin, not self-registered. Each link
-  goes straight to `/<role>/register`.
+- **`app/login/page.tsx`** (shared) — a single email + password form for
+  everyone. On submit it calls `GET /auth/role?email=...` on the backend (a
+  small shared endpoint that looks the email up in the `user` table and
+  returns its `role`), then posts `{ email, password }` to that role's own
+  `POST /<role>/login`. What happens next depends on what that response
+  looks like, not on any assumption baked into the shared page:
+  - If it comes back with an `accessToken`, the shared page stores it and
+    goes straight to `/dashboard`. Nothing further for you to build.
+  - If it doesn't (your backend replies some other way — an OTP message,
+    for instance), the shared page stores `email` in `localStorage` and
+    sends the user to `/<role>/login` — a base file already sits there in
+    your folder, empty and ready, since only you know what your backend's
+    login actually still needs at that point.
+- **`app/register/page.tsx`** (shared) — no form, just links to
+  `/<role>/register` for NGO, Volunteer, and Donor. Admin isn't linked here
+  since admins aren't self-registered — that's it, no other backend change
+  attached to that decision. A base file already sits at
+  `app/<role>/register` for all four roles, empty and ready for whatever
+  your signup form needs to do.
 
-**What you build in your own role folder**, using OTP exactly the way your
-backend already does it (Admin and Volunteer already have this; NGO's is
-restored; Donor needs to add it when building the backend from scratch —
-see your plan):
-
-- `app/<role>/register/page.tsx` — the real signup form for your role's
-  fields, posting to `POST /<role>/signup`. On success, store the email and
-  send the user to an OTP-entry page for signup (`POST /<role>/verify-otp`),
-  then on to `/login`.
-- `app/<role>/login/page.tsx` — the continuation after the shared `/login`
-  page already checked the password. Read `email` back out of
-  `localStorage` (redirect to `/login` if it's missing — someone landed here
-  directly), show a code field, and post to `POST /<role>/verify-login-otp`.
-  On success store the returned `accessToken` and go to your dashboard.
-
-NGO's version of both is already built (`app/ngo/register`,
-`app/ngo/verify-signup`, `app/ngo/login`) — copy that shape for your own
-role's fields and routes. Placeholder folders already exist for
-Admin/Volunteer/Donor (`app/<role>/register`, `app/<role>/login`) so the
-routes exist; fill them in following the same pattern.
+Whether your role uses OTP, and what your registration/login screens look
+like beyond that, is entirely up to whoever owns that role's backend — this
+shared layer doesn't assume either way.
 
 ## Ground rule about guarded routes still applies
 

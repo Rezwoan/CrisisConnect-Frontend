@@ -2,23 +2,24 @@
 
 Your backend (`src/volunteer/` in `CrisisConnect-Backend`) is already fully
 built: signup, login (with OTP), profile, skills, browsing calls, applying,
-assignments, work logs. Keep OTP exactly as it is — the faculty wants the
-unified login flow to end in an OTP step for every role.
+assignments, work logs. Nothing here requires you to change that — whether
+you keep OTP or not is your call.
 
-Auth pages for this role work like every other role — see the root
-`README.md` in this folder for the full shared-flow explanation. In short,
-`app/login` and `app/register` (already built, shared) collect
-email+password / pick a role and hand off to your folder. What you still
-need to build (placeholders already exist at these paths):
+Auth pages work like every role — see the root `README.md` in this folder
+for the shared-flow explanation. In short: `app/login` and `app/register`
+are shared and already built. `app/volunteer/register/page.tsx` and
+`app/volunteer/login/page.tsx` are empty base files sitting in your own
+folder already, ready for whatever your signup/login screens need —
+including an OTP step if you keep one, using your existing
+`verify-otp`/`verify-login-otp` routes.
 
-- `app/volunteer/register/page.tsx` — the real signup form (fields below),
-  posting to `POST /volunteer/signup`. On success, store the email and send
-  the user to an OTP-entry page that posts to `POST /volunteer/verify-otp`,
-  then on to `/login`.
-- `app/volunteer/login/page.tsx` — continues after the shared `/login` page
-  already checked the password: read `email` back out of `localStorage`,
-  show a code field, `POST /volunteer/verify-login-otp`, store the returned
-  `accessToken`, go to `/dashboard`.
+Note: `Volunteer.email` and `Volunteer.password` were made nullable on
+`main` so the app can boot — the live database didn't have those columns
+and `synchronize` can't add a required column to a table that already has
+rows. That's a minimal, non-destructive fix to unblock everyone else; the
+actual signup/login logic wasn't touched. Whether those columns belong on
+`Volunteer` at all (separate from the shared `user` table every other role
+uses for email/password) is yours to sort out on your own branch.
 
 ## Required backend edit — unguard one browse route
 
@@ -34,8 +35,7 @@ a volunteer. Leave every other route (`application`, `assignment`,
 |---|---|---|---|
 | `/` | SSR | first 3 open calls | `GET /volunteer/calls` |
 | `/volunteer/register` | CSR | — | `POST /volunteer/signup` |
-| `/volunteer/verify-signup` | CSR | — | `POST /volunteer/verify-otp` |
-| `/volunteer/login` | CSR | — (shared `/login` already did email+password) | `POST /volunteer/verify-login-otp` |
+| `/volunteer/login` | CSR | — (shared `/login` already did email+password) | whatever your backend's login still needs — e.g. `POST /volunteer/verify-login-otp` if you keep OTP |
 | `/dashboard` | CSR | your volunteer profile | `GET /volunteer/profile` |
 | `/calls` | SSR | all open calls (folder-based route) | `GET /volunteer/calls` |
 | `/calls/loading.tsx` | — | loading UI while the fetch runs | — |
@@ -46,10 +46,10 @@ a volunteer. Leave every other route (`application`, `assignment`,
 | `/profile/edit` | CSR | edit form + availability toggle | `PUT /volunteer/profile`, `PATCH /volunteer/profile/availability` |
 | `/assignments` | CSR | your approved assignments (read-only) | `GET /volunteer/assignment` |
 
-That's 14 Axios call sites (3 SSR, 11 CSR) — past the 12 minimum with both
-counts covered. The shared `/login` page's own two calls (`GET /auth/role`,
-`POST /volunteer/login`) are extra on top of this since they're common
-code, not volunteer-specific.
+That's 12 Axios call sites (3 SSR, 9 CSR) — at the minimum, plus whatever
+your `/volunteer/login` continuation ends up calling. The shared `/login`
+page's own two calls (`GET /auth/role`, `POST /volunteer/login`) are extra
+on top of this since they're common code, not volunteer-specific.
 
 ## Signup form fields
 
@@ -67,9 +67,9 @@ with this?").
 
 ## Auth + validation
 
-Same shape as NGO: Zod validation on every form, one `error` string per
-form, `localStorage` for the token and a display name, `Authorization:
-Bearer <token>` attached on every guarded call.
+Zod validation on every form, one `error` string per form, `localStorage`
+for the token and a display name, `Authorization: Bearer <token>` attached
+on every guarded call.
 
 ## Required components (no styling opinions here — just what has to exist)
 
