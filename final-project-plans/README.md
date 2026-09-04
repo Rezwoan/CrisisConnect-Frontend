@@ -52,9 +52,17 @@ and it's the only cross-role piece — everything past it is your own call:
 - **`app/login/page.tsx`** (shared) — a single email + password form for
   everyone. On submit it calls `GET /auth/role?email=...` on the backend (a
   small shared endpoint that looks the email up in the `user` table and
-  returns its `role`), then posts `{ email, password }` to that role's own
-  `POST /<role>/login`. What happens next depends on what that response
-  looks like, not on any assumption baked into the shared page:
+  returns its `role`), then posts the exact `{ email, password }` the user
+  typed straight to that role's own `POST /<role>/login` — untouched, both
+  fields, nothing stripped or pre-checked by the shared page first. Your own
+  `/​<role>/login` route runs exactly as if the request came from a form on
+  your own page; it does its own password check, its own OTP branch if it
+  has one, whatever it already does. Confirmed live against the actual
+  backend: a wrong password on `/admin/login` and `/volunteer/login` both
+  come back `401 Invalid credentials` — the shared page never intercepts or
+  short-circuits that. What happens next on the frontend depends on what
+  that response looks like, not on any assumption baked into the shared
+  page:
   - If it comes back with an `accessToken`, the shared page stores it and
     goes straight to `/dashboard`. Nothing further for you to build.
   - If it doesn't (your backend replies some other way — an OTP message,
