@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 export default function DonationCallsPage() {
   const router = useRouter();
   const [calls, setCalls] = useState<any[]>([]);
+  const [joinedCrises, setJoinedCrises] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
@@ -30,6 +31,12 @@ export default function DonationCallsPage() {
         { headers: { Authorization: "Bearer " + token } },
       );
       setCalls(response.data);
+
+      const myCrisesResponse = await axios.get(
+        process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/my-crises",
+        { headers: { Authorization: "Bearer " + token } },
+      );
+      setJoinedCrises(myCrisesResponse.data.crises);
     } catch (error) {
       console.error(error);
     }
@@ -94,14 +101,18 @@ export default function DonationCallsPage() {
         </div>
 
         <div>
-          <label htmlFor="crisisId">Crisis ID</label>
-          <input
+          <label htmlFor="crisisId">Crisis</label>
+          <select
             id="crisisId"
-            type="number"
             className="w-full rounded border border-slate-300 px-2 py-1"
             value={crisisId}
             onChange={(e) => setCrisisId(e.target.value)}
-          />
+          >
+            <option value="">Select a crisis you've joined</option>
+            {joinedCrises.map((crisis, index) => (
+              <option key={index} value={crisis.id}>{crisis.title}</option>
+            ))}
+          </select>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

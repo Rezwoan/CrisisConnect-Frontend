@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
+const AUTH_FLOW_PATHS = ["/ngo/register", "/ngo/verify-signup", "/ngo/login"];
 
 export default function NgoNavbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (AUTH_FLOW_PATHS.includes(pathname)) {
+    return null;
+  }
 
   return (
     <nav className="flex items-center gap-4 bg-slate-800 px-4 py-3 text-white">
