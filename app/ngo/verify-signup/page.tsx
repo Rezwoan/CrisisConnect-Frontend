@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/Header";
-import Navigation from "@/components/Navigation";
 
 export default function NgoVerifySignupPage() {
   const router = useRouter();
@@ -19,7 +18,6 @@ export default function NgoVerifySignupPage() {
   return (
     <>
       <Header title="Verify Your Email" />
-      <Navigation />
 
       <p>Enter the code emailed to {email}.</p>
 
@@ -43,20 +41,24 @@ export default function NgoVerifySignupPage() {
             }
           }
         }}
+        className="flex max-w-sm flex-col gap-2"
       >
         <div>
           <label htmlFor="code">Verification Code</label>
           <input
             type="text"
             id="code"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
         </div>
 
-        {error && <p>{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit">Verify</button>
+        <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white">
+          Verify
+        </button>
       </form>
     </>
   );

@@ -22,21 +22,29 @@ why).
 
 ## Pages to build
 
+All routes below live under `app/ngo/` (own-folder-only — see the root
+`README.md`), so the SSR home teaser is `/ngo`, not the app's root `/`. The
+root `/` stays the shared login/register gateway, untouched by this plan.
+
 | Route | CSR/SSR | Data | Axios call |
 |---|---|---|---|
-| `/` | SSR | first 3 active crises | `GET /ngo/crisis` |
+| `/ngo` | SSR | first 3 active crises | `GET /ngo/crisis` |
 | `/ngo/register` | CSR | — | `POST /ngo/signup` |
 | `/ngo/verify-signup` | CSR | — | `POST /ngo/verify-otp` |
 | `/ngo/login` | CSR | — (shared `/login` already did email+password) | `POST /ngo/verify-login-otp` |
 | `/ngo/dashboard` | CSR | your org profile | `GET /ngo/profile` |
-| `/crises` | SSR | all crises (folder-based route) | `GET /ngo/crisis` |
-| `/crises/loading.tsx` | — | Next.js loading UI while the above fetch runs | — |
-| `/crises/[id]` | SSR | one crisis (dynamic route) | reuses the same `GET /ngo/crisis` list, find by id server-side |
-| `/crises/[id]` → `notFound()` | — | call `notFound()` from `next/navigation` when the id isn't in the list, which renders `not-found.tsx` | — |
-| `/crises/[id]` "Join" button | CSR (client component nested in the SSR page) | — | `POST /ngo/crisis/:id/join` |
-| `/my-crises` | CSR | crises you've joined + a "Leave" button | `GET /ngo/my-crises`, `DELETE /ngo/crisis/:id/leave` |
-| `/calls` | CSR | your volunteer calls, a create form, a close button | `GET /ngo/volunteer-call`, `POST /ngo/volunteer-call`, `PATCH /ngo/volunteer-call/:id/status` |
-| `/donation-calls` | CSR | your donation calls + create form | `GET /ngo/donation-call`, `POST /ngo/donation-call` |
+| `/ngo/crises` | SSR | all crises (folder-based route) | `GET /ngo/crisis` |
+| `/ngo/crises/loading.tsx` | — | Next.js loading UI while the above fetch runs | — |
+| `/ngo/crises/[id]` | SSR | one crisis (dynamic route) | reuses the same `GET /ngo/crisis` list, find by id server-side |
+| `/ngo/crises/[id]` → `notFound()` | — | call `notFound()` from `next/navigation` when the id isn't in the list, which renders `not-found.tsx` | — |
+| `/ngo/crises/[id]` "Join" button | CSR (client component nested in the SSR page) | — | `POST /ngo/crisis/:id/join` |
+| `/ngo/my-crises` | CSR | crises you've joined + a "Leave" button | `GET /ngo/my-crises`, `DELETE /ngo/crisis/:id/leave` |
+| `/ngo/calls` | CSR | your volunteer calls, a create form, a close button | `GET /ngo/volunteer-call`, `POST /ngo/volunteer-call`, `PATCH /ngo/volunteer-call/:id/status` |
+| `/ngo/donation-calls` | CSR | your donation calls + create form | `GET /ngo/donation-call`, `POST /ngo/donation-call` |
+
+Built: all rows above, plus a `layout.tsx` and `_components/` (Navbar,
+CrisisCard, Carousel) inside `app/ngo/` for the shared-within-this-role UI
+the table doesn't itemize on its own.
 
 That's 15 Axios call sites (3 SSR — home teaser, crisis list, crisis detail
 — and 12 CSR), well past the 12 minimum with both counts covered. The

@@ -1,15 +1,18 @@
-import Link from "next/link";
+import axios from "axios";
 import Header from "@/components/Header";
-import Navigation from "@/components/Navigation";
+import Carousel from "./_components/Carousel";
 
-export default function NgoList() {
+export default async function NgoHomePage() {
+  const response = await axios.get(
+    process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/crisis",
+    { params: { status: "ACTIVE" } },
+  );
+  const crises = Array.isArray(response.data) ? response.data.slice(0, 3) : [];
+
   return (
     <>
-      <Header title="NGO" />
-      <Navigation />
-      <br />
-      <Link href="/ngo/1">NGO 1</Link>
-      <Link href="/ngo/2">NGO 2</Link>
+      <Header title="Active Crises" />
+      <Carousel crises={crises} />
     </>
   );
 }

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import axios from "axios";
 import Header from "@/components/Header";
-import Navigation from "@/components/Navigation";
 
 const registerSchema = z.object({
   orgName: z.string().min(1, "Organization name is required"),
@@ -31,7 +30,6 @@ export default function NgoRegisterPage() {
   return (
     <>
       <Header title="NGO Registration" />
-      <Navigation />
 
       <form
         onSubmit={async (e) => {
@@ -74,12 +72,14 @@ export default function NgoRegisterPage() {
             }
           }
         }}
+        className="flex max-w-sm flex-col gap-2"
       >
         <div>
           <label htmlFor="orgName">Organization Name</label>
           <input
             type="text"
             id="orgName"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
           />
@@ -90,6 +90,7 @@ export default function NgoRegisterPage() {
           <input
             type="text"
             id="regNumber"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={regNumber}
             onChange={(e) => setRegNumber(e.target.value)}
           />
@@ -100,6 +101,7 @@ export default function NgoRegisterPage() {
           <input
             type="text"
             id="phone"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -110,6 +112,7 @@ export default function NgoRegisterPage() {
           <input
             type="text"
             id="city"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={city}
             onChange={(e) => setCity(e.target.value)}
           />
@@ -120,6 +123,7 @@ export default function NgoRegisterPage() {
           <input
             type="text"
             id="email"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -130,6 +134,7 @@ export default function NgoRegisterPage() {
           <input
             type="password"
             id="password"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -140,14 +145,17 @@ export default function NgoRegisterPage() {
           <input
             type="password"
             id="confirmPassword"
+            className="w-full rounded border border-slate-300 px-2 py-1"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
 
-        {error && <p>{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit">Register</button>
+        <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white">
+          Register
+        </button>
       </form>
     </>
   );
