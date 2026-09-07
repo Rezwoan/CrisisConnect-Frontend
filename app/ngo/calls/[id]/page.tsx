@@ -6,6 +6,8 @@ import axios from "axios";
 import Header from "@/components/Header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "../../_components/statusColor";
 
 export default function CallApplicantsPage() {
   const params = useParams();
@@ -49,7 +51,7 @@ export default function CallApplicantsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm">{application.message}</p>
-              <p className="mt-1 text-sm">Status: {application.status}</p>
+              <Badge className={"mt-2 " + statusColor(application.status)}>{application.status}</Badge>
             </CardContent>
             {application.status === "PENDING" && (
               <CardFooter className="gap-2">

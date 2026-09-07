@@ -7,6 +7,8 @@ import axios from "axios";
 import Header from "@/components/Header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "../_components/statusColor";
 
 export default function VolunteerCallsPage() {
   const router = useRouter();
@@ -152,7 +154,7 @@ export default function VolunteerCallsPage() {
               <CardDescription>{call.city} · {call.slots} slots</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm">Status: {call.status}</p>
+              <Badge className={statusColor(call.status)}>{call.status}</Badge>
             </CardContent>
             <CardFooter className="flex-col items-start gap-2">
               {call.status === "OPEN" && (

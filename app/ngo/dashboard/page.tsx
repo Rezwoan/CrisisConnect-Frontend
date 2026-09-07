@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/Header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "../_components/statusColor";
 
 export default function NgoDashboardPage() {
   const router = useRouter();
@@ -43,7 +45,9 @@ export default function NgoDashboardPage() {
             <p>Registration Number: {profile.regNumber}</p>
             <p>Phone: {profile.phone}</p>
             <p>City: {profile.city}</p>
-            <p>Status: {profile.isActive ? "Active" : "Inactive"}</p>
+            <Badge className={statusColor(profile.isActive ? "ACTIVE" : "CLOSED")}>
+              {profile.isActive ? "Active" : "Inactive"}
+            </Badge>
           </CardContent>
         </Card>
       )}

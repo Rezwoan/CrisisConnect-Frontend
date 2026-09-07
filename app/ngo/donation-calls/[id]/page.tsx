@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/Header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "../../_components/statusColor";
 
 export default function DonationCallDetailPage() {
   const params = useParams();
@@ -51,7 +53,7 @@ export default function DonationCallDetailPage() {
             <CardDescription>{donationCall.raisedAmount} / {donationCall.targetAmount} raised</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm">Status: {donationCall.status}</p>
+            <Badge className={statusColor(donationCall.status)}>{donationCall.status}</Badge>
           </CardContent>
         </Card>
       )}
@@ -67,7 +69,7 @@ export default function DonationCallDetailPage() {
             <CardContent>
               <p className="text-sm">Amount: {donation.amount}</p>
               {donation.message && <p className="mt-1 text-sm">"{donation.message}"</p>}
-              <p className="mt-1 text-sm">Status: {donation.status}</p>
+              <Badge className={"mt-2 " + statusColor(donation.status)}>{donation.status}</Badge>
             </CardContent>
           </Card>
         ))}

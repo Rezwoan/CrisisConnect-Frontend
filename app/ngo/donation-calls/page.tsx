@@ -7,6 +7,8 @@ import axios from "axios";
 import Header from "@/components/Header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "../_components/statusColor";
 import DonationChart from "../_components/DonationChart";
 
 export default function DonationCallsPage() {
@@ -138,7 +140,7 @@ export default function DonationCallsPage() {
               <CardDescription>{call.raisedAmount} / {call.targetAmount} raised</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm">Status: {call.status}</p>
+              <Badge className={statusColor(call.status)}>{call.status}</Badge>
             </CardContent>
             <CardFooter>
               <Button variant="link" className="px-0" nativeButton={false} render={<Link href={"/ngo/donation-calls/" + call.id} />}>

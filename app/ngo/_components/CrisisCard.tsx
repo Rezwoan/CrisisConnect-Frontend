@@ -8,6 +8,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { statusColor } from "./statusColor";
 
 export default function CrisisCard(props: {
   crisis: {
@@ -27,8 +29,9 @@ export default function CrisisCard(props: {
         <CardTitle>{crisis.title}</CardTitle>
         <CardDescription>{crisis.category} · {crisis.city}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm">Severity: {crisis.severity} · Status: {crisis.status}</p>
+      <CardContent className="flex gap-2">
+        <Badge className={statusColor(crisis.severity)}>{crisis.severity}</Badge>
+        <Badge className={statusColor(crisis.status)}>{crisis.status}</Badge>
       </CardContent>
       <CardFooter>
         <Button
