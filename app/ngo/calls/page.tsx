@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import Header from "@/components/Header";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function VolunteerCallsPage() {
   const router = useRouter();
@@ -144,38 +146,41 @@ export default function VolunteerCallsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {calls.map((call, index) => (
-          <div key={index} className="rounded-lg border border-slate-200 p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">{call.title}</h3>
-            <p className="text-sm text-slate-600">{call.city} · {call.slots} slots</p>
-            <p className="text-sm">Status: {call.status}</p>
-            {call.status === "OPEN" && (
-              <button
-                onClick={async () => {
-                  try {
-                    const token = localStorage.getItem("token");
-                    await axios.patch(
-                      process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/volunteer-call/" + call.id + "/status",
-                      { status: "CLOSED" },
-                      { headers: { Authorization: "Bearer " + token } },
-                    );
-                    fetchData();
-                  } catch (err: any) {
-                    const message = err.response && err.response.data && err.response.data.message;
-                    setError(Array.isArray(message) ? message[0] : message || "Something went wrong");
-                  }
-                }}
-                className="mt-2 rounded bg-red-600 px-3 py-1 text-white"
-              >
-                Close
-              </button>
-            )}
-            <Link
-              href={"/ngo/calls/" + call.id}
-              className="mt-2 block text-blue-600"
-            >
-              View Applicants
-            </Link>
-          </div>
+          <Card key={index}>
+            <CardHeader>
+              <CardTitle>{call.title}</CardTitle>
+              <CardDescription>{call.city} · {call.slots} slots</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">Status: {call.status}</p>
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-2">
+              {call.status === "OPEN" && (
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem("token");
+                      await axios.patch(
+                        process.env.NEXT_PUBLIC_API_ENDPOINT + "/ngo/volunteer-call/" + call.id + "/status",
+                        { status: "CLOSED" },
+                        { headers: { Authorization: "Bearer " + token } },
+                      );
+                      fetchData();
+                    } catch (err: any) {
+                      const message = err.response && err.response.data && err.response.data.message;
+                      setError(Array.isArray(message) ? message[0] : message || "Something went wrong");
+                    }
+                  }}
+                >
+                  Close
+                </Button>
+              )}
+              <Button variant="link" className="px-0" nativeButton={false} render={<Link href={"/ngo/calls/" + call.id} />}>
+                View Applicants
+              </Button>
+            </CardFooter>
+          </Card>
         ))}
       </div>
     </>

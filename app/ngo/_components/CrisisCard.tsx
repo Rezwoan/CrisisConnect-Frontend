@@ -1,4 +1,13 @@
 import Link from "next/link";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function CrisisCard(props: {
   crisis: {
@@ -13,13 +22,24 @@ export default function CrisisCard(props: {
   const { crisis } = props;
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4 shadow-sm">
-      <h3 className="text-lg font-semibold">{crisis.title}</h3>
-      <p className="text-sm text-slate-600">{crisis.category} · {crisis.city}</p>
-      <p className="mt-1 text-sm">Severity: {crisis.severity} · Status: {crisis.status}</p>
-      <Link href={"/ngo/crises/" + crisis.id} className="mt-2 inline-block text-blue-600">
-        View details
-      </Link>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{crisis.title}</CardTitle>
+        <CardDescription>{crisis.category} · {crisis.city}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm">Severity: {crisis.severity} · Status: {crisis.status}</p>
+      </CardContent>
+      <CardFooter>
+        <Button
+          variant="link"
+          className="px-0"
+          nativeButton={false}
+          render={<Link href={"/ngo/crises/" + crisis.id} />}
+        >
+          View details
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

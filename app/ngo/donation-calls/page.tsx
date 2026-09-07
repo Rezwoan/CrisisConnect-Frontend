@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import Header from "@/components/Header";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import DonationChart from "../_components/DonationChart";
 
 export default function DonationCallsPage() {
   const router = useRouter();
@@ -123,21 +126,26 @@ export default function DonationCallsPage() {
         </button>
       </form>
 
+      <h2 className="mb-2 text-lg font-semibold">Progress</h2>
+      <DonationChart calls={calls} />
+
+      <h2 className="mt-6 mb-2 text-lg font-semibold">Your Donation Calls</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {calls.map((call, index) => (
-          <div key={index} className="rounded-lg border border-slate-200 p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">{call.title}</h3>
-            <p className="text-sm text-slate-600">
-              {call.raisedAmount} / {call.targetAmount} raised
-            </p>
-            <p className="text-sm">Status: {call.status}</p>
-            <Link
-              href={"/ngo/donation-calls/" + call.id}
-              className="mt-2 block text-blue-600"
-            >
-              View Donations
-            </Link>
-          </div>
+          <Card key={index}>
+            <CardHeader>
+              <CardTitle>{call.title}</CardTitle>
+              <CardDescription>{call.raisedAmount} / {call.targetAmount} raised</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">Status: {call.status}</p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="link" className="px-0" nativeButton={false} render={<Link href={"/ngo/donation-calls/" + call.id} />}>
+                View Donations
+              </Button>
+            </CardFooter>
+          </Card>
         ))}
       </div>
     </>

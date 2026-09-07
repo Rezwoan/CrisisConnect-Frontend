@@ -2,8 +2,28 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+} from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const AUTH_FLOW_PATHS = ["/ngo/register", "/ngo/verify-signup", "/ngo/login"];
+
+const LINKS = [
+  { href: "/ngo/crises", label: "Crises" },
+  { href: "/ngo/my-crises", label: "My Crises" },
+  { href: "/ngo/calls", label: "Volunteer Calls" },
+  { href: "/ngo/donation-calls", label: "Donation Calls" },
+];
 
 export default function NgoNavbar() {
   const router = useRouter();
@@ -14,23 +34,40 @@ export default function NgoNavbar() {
   }
 
   return (
-    <nav className="flex items-center gap-4 bg-slate-800 px-4 py-3 text-white">
+    <nav className="flex items-center gap-4 border-b px-4 py-3">
       <Link href="/ngo" className="font-semibold">CrisisConnect NGO</Link>
-      <Link href="/ngo/crises">Crises</Link>
-      <Link href="/ngo/my-crises">My Crises</Link>
-      <Link href="/ngo/calls">Volunteer Calls</Link>
-      <Link href="/ngo/donation-calls">Donation Calls</Link>
-      <Link href="/ngo/dashboard">Dashboard</Link>
-      <button
-        onClick={() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("email");
-          router.push("/login");
-        }}
-        className="ml-auto rounded bg-slate-600 px-3 py-1"
-      >
-        Logout
-      </button>
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          {LINKS.map((link) => (
+            <NavigationMenuItem key={link.href}>
+              <NavigationMenuLink render={<Link href={link.href} />}>
+                {link.label}
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          ))}
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" className="ml-auto" />}>
+          Account
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem render={<Link href="/ngo/dashboard" />}>
+            Dashboard
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              router.push("/login");
+            }}
+          >
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 }

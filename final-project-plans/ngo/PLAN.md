@@ -39,17 +39,25 @@ root `/` stays the shared login/register gateway, untouched by this plan.
 | `/ngo/crises/[id]` → `notFound()` | — | call `notFound()` from `next/navigation` when the id isn't in the list, which renders `not-found.tsx` | — |
 | `/ngo/crises/[id]` "Join" button | CSR (client component nested in the SSR page) | — | `POST /ngo/crisis/:id/join` |
 | `/ngo/my-crises` | CSR | crises you've joined + a "Leave" button | `GET /ngo/my-crises`, `DELETE /ngo/crisis/:id/leave` |
-| `/ngo/calls` | CSR | your volunteer calls, a create form, a close button | `GET /ngo/volunteer-call`, `POST /ngo/volunteer-call`, `PATCH /ngo/volunteer-call/:id/status` |
-| `/ngo/donation-calls` | CSR | your donation calls + create form | `GET /ngo/donation-call`, `POST /ngo/donation-call` |
+| `/ngo/calls` | CSR | your volunteer calls, a create form (crisis picked from a dropdown of your joined crises via `GET /ngo/my-crises`), a close button | `GET /ngo/volunteer-call`, `GET /ngo/my-crises`, `POST /ngo/volunteer-call`, `PATCH /ngo/volunteer-call/:id/status` |
+| `/ngo/calls/[id]` | CSR | applicants for that one call, approve/reject buttons | `GET /ngo/volunteer-call/:id/applicants`, `POST /ngo/application/:id/approve`, `PATCH /ngo/application/:id/reject` |
+| `/ngo/donation-calls` | CSR | your donation calls + create form (same joined-crisis dropdown) | `GET /ngo/donation-call`, `GET /ngo/my-crises`, `POST /ngo/donation-call` |
+| `/ngo/donation-calls/[id]` | CSR | that call's raised/target summary + who donated how much | `GET /ngo/donation-call`, `GET /ngo/donation-call/:id/donations` |
 
 Built: all rows above, plus a `layout.tsx` and `_components/` (Navbar,
 CrisisCard, Carousel) inside `app/ngo/` for the shared-within-this-role UI
 the table doesn't itemize on its own.
 
-That's 15 Axios call sites (3 SSR — home teaser, crisis list, crisis detail
-— and 12 CSR), well past the 12 minimum with both counts covered. The
-shared `/login` page's own two calls (`GET /auth/role`, `POST /ngo/login`)
-are extra on top of this table since they're common code, not NGO-specific.
+The donations list needed one backend addition beyond what was originally
+scoped here: `GET /ngo/donation-call/:id/donations`, reading Donor's
+`Donation` entity through a repository registered in `ngo.module.ts` — same
+pattern already used for reading Admin's `Crisis` and Volunteer's
+`Application`, no edits to Donor's files.
+
+Well past the 12 Axios-call minimum now (3 SSR, the rest CSR), with real
+SSR/CSR variety covered from the original count alone — the additions above
+are for actual completeness (approving applicants, seeing who donated), not
+for padding the number.
 
 ## Auth + validation
 
@@ -66,6 +74,32 @@ sends `Authorization: Bearer <token>` read from `localStorage`.
 - Crisis / call cards for each list item
 - A carousel somewhere reasonable — the home page teaser (3 crises) is the
   natural fit
+
+## shadcn/ui, a menu component, and D3.js
+
+Faculty asked (separately from the written rubric) for Card, Carousel, a
+Navbar, and a menu component to actually come from **shadcn/ui**, plus a
+**D3.js** chart somewhere. shadcn/ui is installed at the project root
+(`components.json`, `components/ui/`, `lib/utils.ts`) since it's shared
+infrastructure like Tailwind itself — every role can use it, nothing about
+how NGO uses it is imposed on anyone else.
+
+- `NgoNavbar` — shadcn `NavigationMenu` for the link row (Crises, My
+  Crises, Volunteer Calls, Donation Calls), plus a shadcn `DropdownMenu`
+  ("Account") for Dashboard/Logout — satisfies both "navbar" and "menu" in
+  one component.
+- Every card-shaped thing this role renders (crisis cards, call cards,
+  donation-call cards, applicant cards, my-crises cards) uses shadcn's
+  `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/
+  `CardFooter`, not hand-rolled `<div>`s.
+- The home teaser carousel uses shadcn's `Carousel` (Embla-based) instead
+  of a manual `useState` index.
+- `app/ngo/_components/DonationChart.tsx` — a D3.js bar chart on
+  `/ngo/donation-calls` showing raised vs. target per donation call. D3
+  wasn't in any lecture material covered earlier in this project, so there
+  was no prior course pattern to follow here — built directly from D3's
+  own API (`d3.select`, `d3.scaleLinear`, `d3.max`) against the same
+  `raisedAmount`/`targetAmount` fields the cards already show.
 
 ## Optional
 

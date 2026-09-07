@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/Header";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function NgoDashboardPage() {
   const router = useRouter();
@@ -34,13 +35,17 @@ export default function NgoDashboardPage() {
     <>
       <Header title="Dashboard" />
       {profile != null && (
-        <div className="max-w-sm rounded-lg border border-slate-200 p-4 shadow-sm">
-          <p className="text-lg font-semibold">{profile.orgName}</p>
-          <p>Registration Number: {profile.regNumber}</p>
-          <p>Phone: {profile.phone}</p>
-          <p>City: {profile.city}</p>
-          <p>Status: {profile.isActive ? "Active" : "Inactive"}</p>
-        </div>
+        <Card className="max-w-sm">
+          <CardHeader>
+            <CardTitle>{profile.orgName}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Registration Number: {profile.regNumber}</p>
+            <p>Phone: {profile.phone}</p>
+            <p>City: {profile.city}</p>
+            <p>Status: {profile.isActive ? "Active" : "Inactive"}</p>
+          </CardContent>
+        </Card>
       )}
     </>
   );

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/Header";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function CallApplicantsPage() {
   const params = useParams();
@@ -40,14 +42,18 @@ export default function CallApplicantsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {applicants.map((application, index) => (
-          <div key={index} className="rounded-lg border border-slate-200 p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">{application.volunteer.fullName}</h3>
-            <p className="text-sm text-slate-600">{application.volunteer.city}</p>
-            <p className="mt-1 text-sm">{application.message}</p>
-            <p className="mt-1 text-sm">Status: {application.status}</p>
+          <Card key={index}>
+            <CardHeader>
+              <CardTitle>{application.volunteer.fullName}</CardTitle>
+              <CardDescription>{application.volunteer.city}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">{application.message}</p>
+              <p className="mt-1 text-sm">Status: {application.status}</p>
+            </CardContent>
             {application.status === "PENDING" && (
-              <div className="mt-2 flex gap-2">
-                <button
+              <CardFooter className="gap-2">
+                <Button
                   onClick={async () => {
                     try {
                       const token = localStorage.getItem("token");
@@ -62,11 +68,11 @@ export default function CallApplicantsPage() {
                       setError(Array.isArray(message) ? message[0] : message || "Something went wrong");
                     }
                   }}
-                  className="rounded bg-blue-600 px-3 py-1 text-white"
                 >
                   Approve
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="destructive"
                   onClick={async () => {
                     try {
                       const token = localStorage.getItem("token");
@@ -81,13 +87,12 @@ export default function CallApplicantsPage() {
                       setError(Array.isArray(message) ? message[0] : message || "Something went wrong");
                     }
                   }}
-                  className="rounded bg-red-600 px-3 py-1 text-white"
                 >
                   Reject
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             )}
-          </div>
+          </Card>
         ))}
       </div>
     </>
