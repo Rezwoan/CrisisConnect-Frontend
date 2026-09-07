@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import Header from "@/components/Header";
 
@@ -168,6 +169,12 @@ export default function VolunteerCallsPage() {
                 Close
               </button>
             )}
+            <Link
+              href={"/ngo/calls/" + call.id}
+              className="mt-2 block text-blue-600"
+            >
+              View Applicants
+            </Link>
           </div>
         ))}
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import Header from "@/components/Header";
 
@@ -130,6 +131,12 @@ export default function DonationCallsPage() {
               {call.raisedAmount} / {call.targetAmount} raised
             </p>
             <p className="text-sm">Status: {call.status}</p>
+            <Link
+              href={"/ngo/donation-calls/" + call.id}
+              className="mt-2 block text-blue-600"
+            >
+              View Donations
+            </Link>
           </div>
         ))}
       </div>
